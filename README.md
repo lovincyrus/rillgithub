@@ -104,3 +104,34 @@ curl "http://127.0.0.1:8000/generate/rilldata/rill?bucket_path=gs://your-bucket/
 ```
 
 The endpoint will return a JSON response indicating the status of the operation.
+
+## Bash Script: Automated Rill Project Generation
+
+You can automate the entire workflow using the provided `generate_rill_project.sh` script.
+
+### What it does
+
+- Runs the commit extraction and uploads the parquet file to GCS.
+- Creates a local Rill project structure for the specified GitHub repo.
+- Downloads the latest commits parquet file from GCS into the new project directory.
+- Changes into the project directory and automatically starts the Rill app.
+
+### Usage
+
+1. Make the script executable:
+   ```sh
+   chmod +x generate_rill_project.sh
+   ```
+2. Run the script with your repo slug (and optionally a custom bucket path):
+   ```sh
+   ./generate_rill_project.sh owner/repo
+   # or with a custom bucket path
+   ./generate_rill_project.sh owner/repo gs://your-bucket/path
+   ```
+
+The script will:
+
+- Extract commit data from the specified repo
+- Scaffold a Rill project
+- Download the latest parquet file from GCS
+- Launch the Rill dashboard automatically in the new project directory
