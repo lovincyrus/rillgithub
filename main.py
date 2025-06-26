@@ -2,12 +2,18 @@ from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 from download_commits import download_commits
 import os
+import logging
+from git.exc import GitCommandError
 
 app = FastAPI()
 
 # Default values (should match those in download_commits.py)
 DEFAULT_BUCKET_PATH = "gs://rilldata-public/github-analytics/rilldata/rill/commits"
 DEFAULT_GCP_KEY = "github-analytics-service-account.json"
+
+# Configure logging for the API
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("api")
 
 @app.get("/generate/{owner}/{repo}")
 def generate(owner: str, repo: str, bucket_path: str = Query(None), gcp_key: str = Query(None)):
@@ -22,7 +28,15 @@ def generate(owner: str, repo: str, bucket_path: str = Query(None), gcp_key: str
             "repo": repo_slug,
             "bucket_path": bucket_path
         })
+    except GitCommandError as e:
+        logger.error(f"Git error for repo {repo_slug}: {e}")
+        return JSONResponse({
+            "status": "error",
+            "error": "Repository not found or inaccessible.",
+            "details": str(e)
+        }, status_code=404)
     except Exception as e:
+        logger.error(f"Unexpected error for repo {repo_slug}: {e}")
         return JSONResponse({
             "status": "error",
             "error": str(e)

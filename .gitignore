@@ -7,3 +7,5 @@
 .env
 tmp
 .rillcloud
+
+__pycache__/
