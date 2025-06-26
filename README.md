@@ -33,7 +33,7 @@ This project provides a script to extract commit and file modification data from
 
 ### Basic usage (with defaults)
 
-This will use the default repository (`duckdb/duckdb`), default bucket path, and default service account key file:
+This will use the default repository (`rilldata/rill`), default bucket path, and default service account key file:
 
 ```sh
 poetry run python download_commits.py
@@ -52,8 +52,8 @@ poetry run python download_commits.py \
 
 #### Arguments
 
-- `--repo-slug`: GitHub repository in `owner/repo` format (default: `duckdb/duckdb`)
-- `--bucket-path`: GCS bucket path to store Parquet files (default: `gs://rilldata-public/github-analytics/duckdb/duckdb/commits`)
+- `--repo-slug`: GitHub repository in `owner/repo` format (default: `rilldata/rill`)
+- `--bucket-path`: GCS bucket path to store Parquet files (default: `gs://rilldata-public/github-analytics/rilldata/rill/commits`)
 - `--gcp-service-account-key-file`: Path to GCP service account key file (default: `github-analytics-service-account.json`)
 
 ## Output
@@ -68,3 +68,39 @@ poetry run python download_commits.py \
 - **Long clone times**: For large repositories, the initial clone by PyDriller may take a while. Be patient, or use a smaller repository for testing.
 - **GCP authentication errors**: Ensure your service account key file is valid and has the correct permissions for the target bucket.
 - **README or packaging errors**: If Poetry complains about missing README or package elements, you can ignore these if you are not publishing the package, or add a minimal README as shown here.
+
+## FastAPI Endpoint Usage
+
+You can also trigger the GitHub data download via a web API using FastAPI.
+
+### Start the server
+
+```sh
+poetry run uvicorn main:app --reload
+```
+
+### Endpoint
+
+- **GET** `/generate/{owner}/{repo}`
+- Optional query parameters:
+  - `bucket_path`: Override the default GCS bucket path
+  - `gcp_key`: Override the default GCP service account key file
+
+#### Example URLs
+
+- Default usage:
+  - `http://127.0.0.1:8000/generate/rilldata/rill`
+- With custom bucket path and GCP key:
+  - `http://127.0.0.1:8000/generate/rilldata/rill?bucket_path=gs://your-bucket/path&gcp_key=/path/to/key.json`
+
+#### Example curl command
+
+```sh
+curl "http://127.0.0.1:8000/generate/rilldata/rill"
+```
+
+```sh
+curl "http://127.0.0.1:8000/generate/rilldata/rill?bucket_path=gs://your-bucket/path&gcp_key=/path/to/key.json"
+```
+
+The endpoint will return a JSON response indicating the status of the operation.

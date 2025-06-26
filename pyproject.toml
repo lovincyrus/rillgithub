@@ -13,6 +13,8 @@ pydriller = "^2.5"
 pyarrow = "^17.0.0"
 fsspec = "^2023.6.0"
 gcsfs = "^2023.6.0"
+fastapi = "^0.115.14"
+uvicorn = "^0.34.3"
 
 
 [build-system]

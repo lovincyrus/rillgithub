@@ -6,7 +6,7 @@ import pandas as pd
 from pydriller import Repository
 
 # Git configurations
-# REPO_SLUG = "duckdb/duckdb"
+# REPO_SLUG = "rilldata/rill"
 # REPO_URL = f"https://github.com/{REPO_SLUG}.git"
 
 # Google Cloud configurations
@@ -76,13 +76,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--repo-slug",
         type=str,
-        default="duckdb/duckdb",
+        default="rilldata/rill",
         help="GitHub repository slug (e.g., owner/repo)",
     )
     parser.add_argument(
         "--bucket-path",
         type=str,
-        default="gs://rilldata-public/github-analytics/duckdb/duckdb/commits",
+        default="gs://rilldata-public/github-analytics/rilldata/rill/commits",
         help="GCS bucket path to store parquet files",
     )
     parser.add_argument(
