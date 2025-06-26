@@ -38,9 +38,11 @@ def download_commits(repo_url, bucket_path, gcp_service_account_key_file):
 
     # Traverse the commits in the repository
     for commit in Repository(repo_url).traverse_commits():
+        # Remove leading '#' if present in commit hash
+        commit_hash = commit.hash.lstrip('#')
         commits.append(
             {
-                "commit_hash": commit.hash,
+                "commit_hash": commit_hash,
                 "commit_msg": commit.msg,
                 "author_name": commit.author.name,
                 "author_email": commit.author.email,
@@ -54,7 +56,7 @@ def download_commits(repo_url, bucket_path, gcp_service_account_key_file):
         for modified_file in commit.modified_files:
             modified_files.append(
                 {
-                    "commit_hash": commit.hash,
+                    "commit_hash": commit_hash,
                     "filename": modified_file.filename,
                     "old_path": modified_file.old_path,
                     "new_path": modified_file.new_path,
