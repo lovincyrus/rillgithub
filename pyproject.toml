@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "example-github-analytics"
+name = "rillgithub"
 version = "0.1.0"
 description = ""
 authors = ["Eric P Green <ericpgreen2@gmail.com>"]
