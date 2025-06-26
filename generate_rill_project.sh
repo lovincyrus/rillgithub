@@ -21,10 +21,16 @@ poetry run python download_commits.py --repo-slug "$REPO_SLUG" --bucket-path "$B
 # 2. Create the Rill project structure
 poetry run python create_local_rill_project.py --repo-slug "$REPO_SLUG"
 
-# 3. Download the latest commits parquet file from GCS into the new project directory
+# 3. Use a temporary directory for parquet file
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
 LATEST_PARQUET=$(gsutil ls "$BUCKET_PATH/commits_*.parquet" | sort | tail -n 1)
-gsutil cp "$LATEST_PARQUET" "${PROJECT_NAME}/commits.parquet"
+gsutil cp "$LATEST_PARQUET" "$tmpdir/commits.parquet"
+cp "$tmpdir/commits.parquet" "${PROJECT_NAME}/commits.parquet"
 
 # 4. Start Rill in the project directory
 cd "$PROJECT_NAME"
-rill start 
+rill start
+
+# 5. Clean up commits.parquet after Rill exits
+rm -f commits.parquet 

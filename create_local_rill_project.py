@@ -10,46 +10,148 @@ description: "Rill analytics project for {repo_slug}"
 ''',
     "sources/{source_name}_commits_source.yaml": '''
 type: source
-connector: "file"
-uri: "commits.parquet"
+connector: "gcs"
+uri: "gs://rilldata-public/github-analytics/{repo_slug}/commits/commits*.parquet"
+# Workaround for caching problem
+extract:
+  files:
+    strategy: tail
+    size: 1
+''',
+    "sources/{source_name}_modified_files.yaml": '''
+type: source
+connector: "gcs"
+uri: "gs://rilldata-public/github-analytics/{repo_slug}/commits/modified_files*.parquet"
+# Workaround for caching problem
+extract:
+  files:
+    strategy: tail
+    size: 1
 ''',
     "models/{source_name}_commits_model.sql": '''
 SELECT
-    commit_hash,
+    author_date AS date,
+    c.commit_hash,
     commit_msg AS commit_message,
-    author_name,
-    author_email,
-    author_date,
-    author_timezone,
-    merge AS is_merge_commit
-FROM {source_name}_commits_source
+    author_name AS username,
+    merge AS is_merge_commit,
+    new_path AS file_path,
+    filename,
+    RIGHT(filename, POSITION('.' IN REVERSE(filename))) AS file_extension,
+    CASE WHEN CONTAINS(file_path, '/')
+      THEN SPLIT_PART(file_path, '/', 1)
+      ELSE NULL
+    END AS first_directory,
+    CASE WHEN CONTAINS(SUBSTRING(file_path, LENGTH(first_directory) + 2), '/')
+      THEN SPLIT_PART(file_path, '/', 2)
+      ELSE NULL
+    END AS second_directory,
+    CASE 
+      WHEN first_directory IS NOT NULL AND second_directory IS NOT NULL
+        THEN CONCAT(first_directory, '/', second_directory) 
+      WHEN first_directory IS NOT NULL
+        THEN first_directory
+      WHEN first_directory IS NULL
+        THEN NULL
+    END AS second_directory_concat,
+    added_lines AS additions,
+    deleted_lines AS deletions, 
+    additions + deletions AS changes, 
+    old_path AS previous_file_path
+FROM {source_name}_commits_source c
+LEFT JOIN {source_name}_modified_files f ON c.commit_hash = f.commit_hash
 ''',
     "metrics/{source_name}_commits_metrics.yaml": '''
 version: 1
 type: metrics_view
-display_name: {project_title} Commits Metrics
+
+display_name: {project_title} Commits Model Metrics
 model: {source_name}_commits_model
-timeseries: author_date
+timeseries: date
+smallest_time_grain: "day"
+
 dimensions:
   - name: commit_hash
     display_name: Commit hash
     expression: commit_hash
+    description: ""
   - name: commit_message
     display_name: Commit message
     expression: commit_message
-  - name: author_name
-    display_name: Author
-    expression: author_name
-  - name: author_email
-    display_name: Author Email
-    expression: author_email
+    description: ""
+  - name: username
+    display_name: Username
+    expression: username
+    description: ""
+  - name: file_path
+    display_name: File path
+    expression: file_path
+    description: ""
+  - name: filename
+    display_name: Filename
+    expression: filename
+    description: ""
+  - name: file_extension
+    display_name: File extension
+    expression: file_extension
+    description: ""
+  - name: first_directory
+    display_name: First directory
+    expression: first_directory
+    description: ""
+  - name: second_directory
+    display_name: Second directory
+    expression: second_directory_concat
+    description: ""
+  - name: previous_file_path
+    display_name: Previous file path
+    expression: previous_file_path
+    description: ""
   - name: is_merge_commit
     display_name: Merge commit
     expression: is_merge_commit
+    description: "True if the commit is a merge commit"
+
 measures:
   - display_name: "Number of commits"
     expression: "count(distinct commit_hash)"
     name: number_of_commits
+    description: ""
+    format_preset: humanize
+  - display_name: Number of files touched
+    expression: count(distinct filename)
+    name: count_of_distinct_filename
+    description: ""
+    format_preset: humanize
+  - display_name: "Number of contributors"
+    expression: "count(distinct username)"
+    name: count_of_distinct_username
+    description: ""
+    format_preset: humanize
+  - display_name: "Code additions"
+    expression: "sum(additions)"
+    name: sum_of_additions
+    description: ""
+    format_preset: humanize
+  - display_name: "Code deletions"
+    expression: "sum(deletions)"
+    name: sum_of_deletions
+    description: ""
+    format_preset: humanize
+  - display_name: "Code changes"
+    expression: "sum(changes)"
+    name: sum_of_changes
+    description: ""
+    format_preset: humanize
+  - display_name: "Code deletion %"
+    expression: "sum(deletions) / sum(changes)"
+    name: percent_code_change
+    description: "The percentage of code changes that were deletions."
+    format_preset: percentage
+  - display_name: "Files touched per commit"
+    expression: "count(*) / count(distinct commit_hash)"
+    name: count_files_touched_per_commit
+    description: ""
     format_preset: humanize
 ''',
     "dashboards/{source_name}_commits_dashboard.yaml": '''
