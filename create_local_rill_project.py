@@ -11,7 +11,7 @@ description: "Rill analytics project for {repo_slug}"
     "sources/{source_name}_commits_source.yaml": '''
 type: source
 connector: "gcs"
-uri: "gs://rilldata-public/github-analytics/{repo_slug}/commits/commits*.parquet"
+uri: "gs://rill-github-public/github-analytics/{repo_slug}/commits/commits*.parquet"
 # Workaround for caching problem
 extract:
   files:
@@ -21,7 +21,7 @@ extract:
     "sources/{source_name}_modified_files.yaml": '''
 type: source
 connector: "gcs"
-uri: "gs://rilldata-public/github-analytics/{repo_slug}/commits/modified_files*.parquet"
+uri: "gs://rill-github-public/github-analytics/{repo_slug}/commits/modified_files*.parquet"
 # Workaround for caching problem
 extract:
   files:

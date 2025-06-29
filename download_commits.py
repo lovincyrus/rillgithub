@@ -10,7 +10,7 @@ from pydriller import Repository
 # REPO_URL = f"https://github.com/{REPO_SLUG}.git"
 
 # Google Cloud configurations
-# BUCKET_PATH = f"gs://rilldata-public/github-analytics/{REPO_SLUG}/commits"
+# BUCKET_PATH = f"gs://rill-github-public/github-analytics/{REPO_SLUG}/commits"
 # GCP_SERVICE_ACCOUNT_KEY_FILE = "github-analytics-service-account.json"
 
 # Configure logging
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--bucket-path",
         type=str,
-        default="gs://rilldata-public/github-analytics/rilldata/rill/commits",
+        default="gs://rill-github-public/github-analytics/rilldata/rill/commits",
         help="GCS bucket path to store parquet files",
     )
     parser.add_argument(

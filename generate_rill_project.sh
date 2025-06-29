@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage: ./generate_rill_project.sh owner/repo [bucket_path]
-# Example: ./generate_rill_project.sh rilldata/rill gs://rilldata-public/github-analytics/rilldata/rill/commits
+# Example: ./generate_rill_project.sh rilldata/rill gs://rill-github-public/github-analytics/rilldata/rill/commits
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 REPO_SLUG="$1"
 SOURCE_NAME=$(echo "$REPO_SLUG" | tr '/' '_')
 PROJECT_NAME="${SOURCE_NAME}_rill"
-BUCKET_PATH="${2:-gs://rilldata-public/github-analytics/$REPO_SLUG/commits}"
+BUCKET_PATH="${2:-gs://rill-github-public/github-analytics/$REPO_SLUG/commits}"
 
 # 1. Download commits (uploads parquet to GCS)
 poetry run python download_commits.py --repo-slug "$REPO_SLUG" --bucket-path "$BUCKET_PATH"

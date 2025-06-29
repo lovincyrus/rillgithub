@@ -53,7 +53,7 @@ poetry run python download_commits.py \
 #### Arguments
 
 - `--repo-slug`: GitHub repository in `owner/repo` format (default: `rilldata/rill`)
-- `--bucket-path`: GCS bucket path to store Parquet files (default: `gs://rilldata-public/github-analytics/rilldata/rill/commits`)
+- `--bucket-path`: GCS bucket path to store Parquet files (default: `gs://rill-github-public/github-analytics/rilldata/rill/commits`)
 - `--gcp-service-account-key-file`: Path to GCP service account key file (default: `github-analytics-service-account.json`)
 
 ## Output

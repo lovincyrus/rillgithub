@@ -8,7 +8,7 @@ from git.exc import GitCommandError
 app = FastAPI()
 
 # Default values (should match those in download_commits.py)
-DEFAULT_BUCKET_PATH = "gs://rilldata-public/github-analytics/rilldata/rill/commits"
+DEFAULT_BUCKET_PATH = "gs://rill-github-public/github-analytics/rilldata/rill/commits"
 DEFAULT_GCP_KEY = "github-analytics-service-account.json"
 
 # Configure logging for the API
